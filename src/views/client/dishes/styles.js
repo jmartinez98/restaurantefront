@@ -22,11 +22,11 @@ export const RowResponsive= styled.div`
     flex-wrap: wrap;
     margin-right: -15px;
     margin-left: -15px;
-    overflow-y: scroll;
-    box-shadow: inset 0px 0px 2px 0px;
+    overflow-y: auto;
+    box-shadow: inset 0px 0px 1px 0px;
     padding-block: 10px;
     margin-bottom: 20px;
-    border-radius: 10px;
+    border-radius: 5px;
     ::after, ::before{
         box-sizing: border-box;
     }
@@ -42,6 +42,6 @@ export const RowResponsive= styled.div`
 
 export const MenuContent= styled.div`
     height: 150px;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding-block: 10px;
 `; 

@@ -1,191 +1,359 @@
-import React, {useState, useEffect} from 'react';
-import {ItemCard} from '../../../components/cards/Cards';
-import { Form, FormGroup, Label, Input, Row, Col, Modal, ModalHeader, ModalBody, ModalFooter, ListGroup, ListGroupItem, ListGroupItemHeading, ListGroupItemText, UncontrolledAlert } from 'reactstrap';
-import {SecondaryBtn, PrimaryBtn, WaringBtn} from '../../../components/Buttons/Buttons';
-import {formInitData, addDish, AddItems, createMenu} from './api_request';
-import * as yup from 'yup';
-import {useFormik} from 'formik';
-import {useHistory} from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { ItemCard } from "../../../components/cards/Cards";
+import {
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Row,
+  Col,
+  ListGroup,
+  ListGroupItem,
+  ListGroupItemHeading,
+  ListGroupItemText,
+  UncontrolledAlert,
+} from "reactstrap";
+import {
+  SecondaryBtn,
+  PrimaryBtn,
+  WaringBtn,
+} from "../../../components/Buttons/Buttons";
+import { formInitData, AddItems, createMenu, editMenu } from "./api_request";
+import * as yup from "yup";
+import { useFormik } from "formik";
+import { useHistory } from "react-router-dom";
+import Api from "../../../utils/ClientApi";
+import Loading from "../../../components/animations/loading";
+import DishesForm from "./dihesForm";
+import noimg from "../../../images/no-img.png";
+import DishesImageForm from "./addImage";
+import Alert from "../../../components/alert/Alert";
 export default function AddMenuForm() {
-    const [modal, setModal] = useState(false);
-    const [platos, setPlatos]= useState([]);
-    const history = useHistory()
-    const [loading , setLoadig] = useState(false);
-    const [error, setError] = useState(false);
-    const [newDish, setNewDish] = useState(false);
-    const [menuDishes, setMenuDishes] = useState([])
-    const menuFormik = useFormik({
-        initialValues: {nombre:"", precio: ""},
-        validationSchema: yup.object(menuSchema()),
-        onSubmit: (form)=>{
-            createMenu(form, menuDishes)
-            .then(e=>{
-                history.replace("/dashboard/menu")
-            }).catch((e)=>{
-                console.log(e)
-            })
-        }
-    })
-    const dishesFormik = useFormik({
-        initialValues:{nombre:"", descripcion: ""},
-        validationSchema: yup.object(disheSchema()),
-        onSubmit: (form)=>{
-            addNewDish(form)
-            
-        }
-    })
+  const [modal, setModal] = useState(false);
+  const [modalImg, setModalImg] = useState(false);
+  const [platos, setPlatos] = useState([]);
+  const history = useHistory();
+  const [loading, setLoadig] = useState(true);
+  const [loadingDishes, setLoadigDishes] = useState(true);
+  const [error, setError] = useState(false);
+  const [newDish, setNewDish] = useState(true);
+  const [dish, setDish] = useState({});
+  const [menuDishes, setMenuDishes] = useState([]);
+  const [isEdit, setIsEdit] = useState(false);
+  const [isEditDishes, setIsEditDishes] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
+  const [initialValues, setinitialValues] = useState({
+    nombre: "",
+    precio: 0,
+  });
 
-    const toggle = () => setModal(!modal);
-    const addNewDish = (form) =>{
-        setLoadig(true)
-        addDish(form).then(e=>{
-            setNewDish(true)
-            setModal(false)
-        })
-        .catch((e)=>{
-            setModal(false)
-        })
-    }
+  const [alert, setAlert] = useState(false);
+  const menuFormik = useFormik({
+    initialValues: initialValues,
+    validationSchema: yup.object(menuSchema()),
+    enableReinitialize: true,
+    onSubmit: (form) => {
+      if (isEdit) {
+        editMenu(form, menuDishes, history.location.state.id).then(() => {
+          setLoadig(true);
+        });
+      } else {
+        createMenu(form, menuDishes)
+          .then((e) => {
+            history.replace("/dashboard/menu");
+          })
+          .catch(console.log);
+      }
+    },
+  });
 
-    const addDishesToMenu = (data) =>{
-        setMenuDishes(AddItems(menuDishes, data))
+  const editdish = (plato) => {
+    setDish(plato);
+    setIsEditDishes(true);
+    toggle();
+  };
+  const dishImg = (plato) => {
+    setDish(plato);
+    setModalImg(!modalImg);
+  };
+  const toggle = () => setModal(!modal);
+  const toggleAlert = () => setAlert(!alert);
+  const openAlert = (e) => {
+    const exist = menuDishes.filter((plato) => plato._id == e._id).length > 0;
+
+    if (!exist) {
+      setDish(e);
+      setAlert(true);
     }
-    const deleteItem =(id)=>{
-        let item = menuDishes.filter(plato => plato._id !== id);
-        setMenuDishes(item)
+  };
+  const addDishesToMenu = (data) => {
+    setMenuDishes(AddItems(menuDishes, data));
+  };
+  const deleteItem = (id) => {
+    let item = menuDishes.filter((plato) => plato._id !== id);
+    setMenuDishes(item);
+  };
+  const DeleteDish = () => {
+    setAlert(false);
+    Api.delete("/api/plato/" + dish._id).then((data) => {
+      setNewDish(true);
+    });
+  };
+  useEffect(() => {
+    if (loading) {
+      if (history.location.state) {
+        setIsEdit(true);
+        setReadOnly(true);
+        Api.get(`/api/menu/${history.location.state.id}`)
+          .then((data) => {
+            const { platos, nombre, precio } = data.data.data;
+            setinitialValues({ nombre: nombre, precio: precio });
+            setMenuDishes(platos);
+            setLoadig(false);
+          })
+          .catch(() => setError(true));
+      } else {
+        setLoadig(false);
+      }
     }
-    useEffect(() => {
-        formInitData().then(e=>{
-            setPlatos(e.platos)
-            setNewDish(false)
-            setLoadig(false)
+  }, [loading]);
+  useEffect(() => {
+    if (newDish) {
+      formInitData()
+        .then((e) => {
+          setPlatos(e.platos);
         })
-        .catch(()=>{
-            setError(true)
-            setNewDish(false)
-            setLoadig(false)
+        .catch(() => {
+          setError(true);
         })
-    }, [newDish])
-    return (
-        <>
-        <ItemCard style= {{marginTop: '15px'}}>
-            <UncontrolledAlert color="warning" isOpen={error} toggle={()=>setError(false)}>
-                Ocurrio un error intentalo nuevamente
-            </UncontrolledAlert>
-            <Form onSubmit={menuFormik.handleSubmit}>
-                <Row>
-                    <Col>
-                        <FormGroup>
-                            <Label for="nombre">Nombre del menu</Label>
-                            <Input type="text" invalid={menuFormik.errors.nombre?true:false} onChange={menuFormik.handleChange} name="nombre" id="nombre" placeholder="Ej: Desayuno, Almuerzo , Desatuno Continental etc." />
-                        </FormGroup>
-                        
-                    </Col>
-                    <Col>
-                        <FormGroup>
-                            <Label for="precio">Precio</Label>
-                            <Input type="number" step=".01" invalid={menuFormik.errors.precio?true:false} onChange={menuFormik.handleChange} name="precio" id="precio" placeholder="Precio"/>
-                        </FormGroup>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-                        <ListGroup>
-                            {menuDishes.map(dish=>(
-                                <ListGroupItem key={dish._id} style={{backgroundColor: '#fff0'}}>
-                                    <div className="d-flex justify-content-between align-items-center">
-                                        <div>
-                                        <ListGroupItemHeading>{dish.nombre}</ListGroupItemHeading>
-                                        <ListGroupItemText>
-                                            {dish.descripcion}
-                                        </ListGroupItemText>
-                                        </div>  
-                                        <WaringBtn type="button" onClick={()=>deleteItem(dish._id)}>Quitar</WaringBtn>    
-                                    </div>
-                                    
-                                </ListGroupItem>
-                            ))}
-                            
-                        </ListGroup>
-                    </Col>
-                </Row>
-                <Row style={{marginBlock: '15px'}}>
-                    <Col>
-                        <PrimaryBtn type="submit"  disabled={menuDishes.length>0 && !loading?false: true}>Crear</PrimaryBtn>
-                    </Col>
-                </Row>
-            </Form>
-        </ItemCard>
-        <Row>
-            <Col xs={12} style={{marginBlock: '10px'}}>
-                <SecondaryBtn type="button" onClick={toggle}>Crear nuevo plato</SecondaryBtn>{' '}
-                <AddDishesModal modal={modal} toggle={toggle}  formik={dishesFormik}/>
-                
+        .finally(() => {
+          setNewDish(false);
+          setLoadigDishes(false);
+        });
+    }
+  }, [newDish]);
+
+  if (loading) {
+    return <Loading />;
+  }
+  return (
+    <>
+      <Alert
+        toggle={toggleAlert}
+        visible={alert}
+        data={dish.nombre}
+        accept={DeleteDish}
+      />
+      <ItemCard style={{ marginTop: "15px" }}>
+        {isEdit ? (
+          <Row>
+            <Col>
+              <div className="d-flex justify-content-end">
+                <SecondaryBtn onClick={() => setReadOnly(false)}>
+                  Editar
+                </SecondaryBtn>
+              </div>
             </Col>
-        </Row>
-        <Row >
-            {loading?(
-                <div>cargando</div>
-            ):(
-                platos.map(plato=>(
-                    <Col key={plato._id} xs={6} md={4} lg={3} style={{marginBlock: 10}}>
-                        <ItemCard>
-                            <h6>{plato.nombre}</h6>
-                            <p>{plato.descripcion??"-"}</p>
-                            <SecondaryBtn type="button" onClick={()=>addDishesToMenu(plato)}>Agregar</SecondaryBtn>
-                        </ItemCard>
-                        
-                    </Col>
-                ))
-            )}
-            
-        </Row>
-        </>
-    )
-}
-
-
-const AddDishesModal=({modal,toggle, formik, loading})=>(
-    <div>
-      <Modal isOpen={modal} toggle={toggle}>
-        <ModalHeader toggle={toggle}>Crear Plato</ModalHeader>
-        <Form onSubmit={formik.handleSubmit}>
-            <ModalBody>
+          </Row>
+        ) : null}
+        <UncontrolledAlert
+          color="warning"
+          isOpen={error}
+          toggle={() => setError(false)}
+        >
+          Ocurrio un error intentalo nuevamente
+        </UncontrolledAlert>
+        <Form onSubmit={menuFormik.handleSubmit}>
+          <fieldset disabled={readOnly}>
+            <Row>
+              <Col>
                 <FormGroup>
-                    <Label for="nombre">Nombre del Plato</Label>
-                    <Input type="text" invalid={formik.errors.nombre?true:false} onChange={formik.handleChange} name="nombre" id="nombre" placeholder="Ej: Seco de Pollo, Encebollado, Coca Cola, Jugo etc." />
+                  <Label for="nombre">Nombre del menú</Label>
+                  <Input
+                    type="text"
+                    invalid={menuFormik.errors.nombre ? true : false}
+                    onChange={menuFormik.handleChange}
+                    value={menuFormik.values.nombre}
+                    name="nombre"
+                    id="nombre"
+                    placeholder="Ej: Desayuno, Almuerzo, etc."
+                  />
                 </FormGroup>
+              </Col>
+              <Col>
                 <FormGroup>
-                    <Label for="descripcion">Descripcion del plato</Label>
-                    <Input type="text" invalid={formik.errors.descripcion?true:false} onChange={formik.handleChange} name="descripcion" id="descripcion" placeholder="Ej: Arroz con pollo al jugo, Jugo de naranja etc." />
+                  <Label for="precio">Precio</Label>
+                  <Input
+                    type="number"
+                    step=".01"
+                    invalid={menuFormik.errors.precio ? true : false}
+                    onChange={menuFormik.handleChange}
+                    value={menuFormik.values.precio}
+                    name="precio"
+                    id="precio"
+                    placeholder="Precio"
+                  />
                 </FormGroup>
-            </ModalBody>
-            <ModalFooter>
-                {loading?null:(
-                    <>
-                        <PrimaryBtn type="submit">Crear</PrimaryBtn>{' '}
-                        <SecondaryBtn type="button" onClick={toggle}>Cancelar</SecondaryBtn>
-                    </>
-                )}
-                
-            </ModalFooter>
-            
+              </Col>
+            </Row>
+          </fieldset>
+          <Row>
+            <Col>
+              <ListGroup>
+                {menuDishes.map((dish) => (
+                  <ListGroupItem
+                    key={dish._id}
+                    style={{ backgroundColor: "#fff0" }}
+                  >
+                    <div className="d-flex justify-content-between align-items-center">
+                      <div>
+                        <ListGroupItemHeading>
+                          <p className="no-margin text-capitalize">
+                            {dish.nombre}
+                          </p>
+                        </ListGroupItemHeading>
+                        <ListGroupItemText className="no-margin">
+                          {dish.descripcion}
+                        </ListGroupItemText>
+                      </div>
+                      {!readOnly && (
+                        <WaringBtn
+                          type="button"
+                          onClick={() => deleteItem(dish._id)}
+                        >
+                          Quitar
+                        </WaringBtn>
+                      )}
+                    </div>
+                  </ListGroupItem>
+                ))}
+              </ListGroup>
+            </Col>
+          </Row>
+          <Row style={{ marginBlock: "15px" }}>
+            <Col>
+              {!isEdit && (
+                <PrimaryBtn
+                  type="submit"
+                  disabled={menuDishes.length > 0 && !loading ? false : true}
+                >
+                  Crear
+                </PrimaryBtn>
+              )}
+              {!readOnly & isEdit ? (
+                <PrimaryBtn
+                  type="submit"
+                  disabled={menuDishes.length > 0 && !loading ? false : true}
+                >
+                  Editar
+                </PrimaryBtn>
+              ) : null}
+            </Col>
+          </Row>
         </Form>
-        
-      </Modal>
-    </div>
-)
-
-function menuSchema(){
-    return{
-        nombre: yup.string().required(true),
-        precio: yup.number().required(true)
-    }
+      </ItemCard>
+      {!readOnly && (
+        <>
+          <Row>
+            <Col xs={12} style={{ marginBlock: "10px" }}>
+              <SecondaryBtn
+                type="button"
+                onClick={() => {
+                  toggle();
+                  setIsEditDishes(false);
+                }}
+              >
+                Crear nuevo plato
+              </SecondaryBtn>{" "}
+              <DishesForm
+                modal={modal}
+                data={dish}
+                setModal={setModal}
+                toggle={toggle}
+                setNewDish={setNewDish}
+                setLoadig={setLoadigDishes}
+                loading={loadingDishes}
+                isedit={isEditDishes}
+              />
+              <DishesImageForm
+                modal={modalImg}
+                data={dish}
+                setModal={setModalImg}
+                toggle={setModalImg}
+                setNewDish={setNewDish}
+                setLoadig={setLoadigDishes}
+                loading={loadingDishes}
+              />
+            </Col>
+          </Row>
+          <Row>
+            {loading ? (
+              <div>cargando</div>
+            ) : (
+              platos.map((plato) => (
+                <Col key={plato._id} xs={12} lg={6} style={{ marginBlock: 10 }}>
+                  <ItemCard>
+                    <Row>
+                      <Col xs={3}>
+                        <img
+                          src={
+                            plato.imagen
+                              ? process.env.REACT_APP_HOST_URL + plato.imagen
+                              : noimg
+                          }
+                          className="img-dish"
+                          alt=""
+                        />
+                      </Col>
+                      <Col xs={8}>
+                        <p className="no-margin title-dish text-capitalize">
+                          {plato.nombre}
+                        </p>
+                        <p className="dish-description ">{plato.descripcion}</p>
+                      </Col>
+                    </Row>
+                    <div
+                      style={{ marginTop: 10 }}
+                      className="d-flex justify-content-between"
+                    >
+                      <div className="d-flex justify-content-around">
+                        <PrimaryBtn
+                          type="button"
+                          onClick={() => addDishesToMenu(plato)}
+                        >
+                          Agregar
+                        </PrimaryBtn>{" "}
+                        <SecondaryBtn
+                          type="button"
+                          onClick={() => editdish(plato)}
+                        >
+                          Editar
+                        </SecondaryBtn>
+                        <SecondaryBtn
+                          type="button"
+                          onClick={() => dishImg(plato)}
+                        >
+                          {plato.imagen ? "Cambiar Imagen" : " Agregar Imagen"}
+                        </SecondaryBtn>
+                      </div>
+                      <WaringBtn type="button" onClick={() => openAlert(plato)}>
+                        Eliminar
+                      </WaringBtn>
+                    </div>
+                  </ItemCard>
+                </Col>
+              ))
+            )}
+          </Row>
+        </>
+      )}
+    </>
+  );
 }
 
-function disheSchema(){
-    return{
-        nombre: yup.string().required(true),
-        descripcion: yup.string().required(true),
-    }
+function menuSchema() {
+  return {
+    nombre: yup.string().required(true),
+    precio: yup.number().required(true),
+  };
 }

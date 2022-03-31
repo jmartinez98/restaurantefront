@@ -1,0 +1,297 @@
+.centerXY {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.no-margin {
+  margin: 0;
+}
+.no-padding {
+  padding: 1;
+}
+.glassform {
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(10px);
+  /* -webkit-backdrop-filter: blur(10px); */
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.absolute-center-container {
+  /* color: white; */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  width: 80%;
+  padding: 20px;
+  text-align: center;
+}
+
+.bg-image {
+  height: 100vh;
+  backgroundrepeat: no-repeat;
+  width: 100%;
+  background-position: center;
+  background-size: cover;
+  /* filter: blur(8px); */
+}
+.custom-nav-container {
+  height: 100vh;
+  position: relative;
+  /* width: 100vw; */
+}
+
+/* SCHEDULE */
+.schedule-image {
+  box-sizing: border-box;
+  width: 100%;
+  height: 50vh;
+  backgroundrepeat: no-repeat;
+  background-size: cover;
+}
+
+/* FOOTER */
+.footer-container {
+  margin-top: 10;
+  padding: 10px;
+  background-image: linear-gradient(to right, #434343 0%, black 100%);
+  color: white;
+}
+
+/* Platos */
+.img-dish {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-size: auto;
+}
+.img-container:hover .img-dish {
+  border-radius: 1px;
+  transition: all 0.5s linear;
+}
+
+.title-dish {
+  font-weight: bold;
+  text-transform: capitalize;
+  text-decoration: dotted;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.281);
+}
+.dish-description {
+  font-style: italic;
+}
+.menu-button {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.menu-button:hover {
+  background-color: rgb(5, 5, 5);
+  color: rgb(255, 255, 255);
+  transition: all 0.5s linear;
+}
+.menu-button-active {
+  background-color: black;
+  color: rgb(255, 255, 255);
+}
+
+.glassform-button {
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+/* BOTON DE LOGIN */
+
+.button-to-login {
+  /* background-color: blue; */
+  position: absolute;
+  z-index: 3;
+  bottom: 3rem;
+  right: 3rem;
+}
+
+/* ORDER */
+
+.order-info {
+  font-weight: bolder;
+}
+.order-info span {
+  font-weight: 100;
+}
+
+/* IMAGEN ADMINISTRADOR */
+.modal-img {
+  /* width: 100%; */
+  height: 300px;
+}
+.modal-img-old {
+  /* width: 100%; */
+  height: 100px;
+}
+.modal-img-preview {
+  max-width: 300px;
+  height: 200px;
+}
+
+/* DASHBOARD CARD */
+.flat-card {
+  height: 100%;
+  width: 100%;
+  background: rgba(114, 114, 114, 0.1);
+
+  backdrop-filter: blur(10px);
+  border-radius: 5px;
+  border: 1px solid rgba(253, 253, 253, 0.466);
+  align-items: center;
+  text-align: center;
+}
+.flat-card:hover {
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+.dashboard-col {
+  height: 200px;
+  padding-inline: 0;
+}
+
+/* LIST description */
+.list-description {
+  font-size: 11px;
+  font-style: oblique;
+}
+
+/* fonts size */
+
+.font-size {
+  font-size: 14px;
+}
+
+@media (max-width: 764px) {
+  .bg-image {
+    height: 40vh;
+  }
+  .custom-nav-container {
+    height: 40vh;
+  }
+  .modal-img-preview {
+    max-width: 200px;
+  }
+  .modal-img-old {
+    width: 100px;
+    height: 100px;
+  }
+}
+@media (max-width: 510px) {
+  .img-dish {
+    width: 50px;
+    height: 50px;
+  }
+  .font-size {
+    font-size: 9px;
+  }
+}
+
+/* ___________------CARD IMAGE------____________ */
+
+.menu-card-container {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 10px;
+  height: 100%;
+}
+.menu-card-img {
+  max-width: 50%;
+  max-height: 200px;
+  border-radius: 50%;
+  transition: all 0.5s linear;
+}
+.menu-card-img:hover {
+  border-radius: 1px;
+  transition: all 0.5s linear;
+}
+.menu-button-card {
+  margin-inline: 5px;
+  max-width: 100px;
+  overflow: hidden;
+  transition: all 0.5s linear;
+  font-size: 9px;
+  padding-block: 5px;
+}
+.menu-button-card:hover {
+  background-color: rgba(176, 193, 207, 0.712);
+}
+.menu-button-card-active {
+  transform: scale(1.5);
+  margin-inline: 15px;
+  padding-inline: 20px;
+  font-size: 10px;
+  z-index: 2;
+  transition: all 0.5s linear;
+}
+.dish-info-container {
+  border-top: 1px solid rgba(0, 0, 0, 0.521);
+  margin: 20px;
+}
+.dashboard-background-img {
+  z-index: 0;
+  /* height: calc(100vh - 56px); */
+  height: 100vh;
+  width: 100%;
+  background-position: center;
+  background-size: cover;
+  position: absolute;
+  /* filter: brightness(0.7); */
+}
+
+/* TEXT */
+.one h1 {
+  text-align: center;
+  text-transform: uppercase;
+  padding-bottom: 5px;
+}
+h1 {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  font-family: "Raleway", sans-serif;
+  font-weight: 300;
+  font-size: 40px;
+  -webkit-transition: all 0.4s ease 0s;
+  -o-transition: all 0.4s ease 0s;
+  transition: all 0.4s ease 0s;
+}
+.one h1:before {
+  width: 28px;
+  height: 5px;
+  display: block;
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  margin-left: -14px;
+  background-color: #b80000;
+}
+.one h1:after {
+  width: 100px;
+  height: 1px;
+  display: block;
+  content: "";
+  position: relative;
+  margin-top: 25px;
+  left: 50%;
+  margin-left: -50px;
+  background-color: #b80000;
+}
+.text-white {
+  color: white;
+  text-shadow: 4px 4px #000000;
+}
+
+.icon-link:link {
+  color: white;
+}
+.icon-link:visited {
+  color: white;
+}

@@ -1,7 +1,7 @@
 import axios from 'axios'
 const token = localStorage.getItem('token')
 const ClientApi = axios.create({
-    baseURL: 'https://tesis-restaurant-api.herokuapp.com',
+    baseURL: process.env.REACT_APP_HOST_URL,
     headers: {
         Authorization: `Bearer ${token}`
     }

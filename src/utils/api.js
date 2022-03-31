@@ -1,9 +1,9 @@
 import axios from 'axios'
 const api = axios.create({
-    baseURL: "https://tesis-restaurant-api.herokuapp.com",
+    baseURL: process.env.REACT_APP_HOST_URL
 
 })
 
-export const URL = "https://tesis-restaurant-api.herokuapp.com";
+export const URL = process.env.REACT_APP_HOST_URL;
 
 export default api
